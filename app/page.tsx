@@ -18,7 +18,7 @@ export default function Dashboard() {
   const [connected, setConnected] = useState(false);
   const [details, setDetails] = useState<DriverDetails | null>(null);
   const [laps, setLaps] = useState<Record<number, DriverLap>>({});
-  const [track, setTrack] = useState<TrackInfo>({ id: -1, name: "TIME TRIAL", country: "Awaiting session" });
+  const [track, setTrack] = useState<TrackInfo>({ id: -1, name: "TIME TRIAL", country: "Awaiting session", trackLength: 0 });
 
   useEffect(() => {
     let disposed = false;
@@ -49,7 +49,7 @@ export default function Dashboard() {
     {!details && <DriverInput onSave={saveIdentity} />}
     <header className="border-b-4 border-f1 bg-[#e10600] px-5 py-3 text-white sm:px-8"><div className="mx-auto flex max-w-7xl items-center justify-between"><div><p className="text-[10px] font-bold tracking-[.22em] text-white/80">F1 24 · PC TELEMETRY</p><h1 className="text-xl font-bold uppercase leading-none">Time Trial Live</h1></div><div className="flex items-center gap-3 text-xs font-bold uppercase"><span className={`h-2.5 w-2.5 rounded-full ${connected ? "bg-lime-300" : "bg-zinc-800"}`} />{connected ? "Signal linked" : "Reconnecting"}</div></div></header>
     <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6"><div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[.2em] text-zinc-500">Session telemetry</p><h2 className="text-3xl font-bold uppercase">{driver?.team || "Waiting for session"}</h2></div>{details && <div className="border-l-2 border-f1 pl-3 text-right"><p className="text-sm font-bold uppercase">{details.name} <span className="text-zinc-400">/ {details.gamertag}</span></p><p className="text-xs text-zinc-500">{details.input}</p></div>}</div>
-      <div className="grid gap-5 lg:grid-cols-[1.45fr_.9fr]"><Leaderboard laps={liveLaps} identity={details || undefined} /><TrackMap track={track} /></div>
+      <div className="grid gap-5 lg:grid-cols-[1.45fr_.9fr]"><Leaderboard laps={liveLaps} identity={details || undefined} /><TrackMap track={track} lapDistance={driver?.lapDistance ?? 0} /></div>
       <p className="mt-5 text-center text-xs text-zinc-600">Purple = session best · Green = personal best · Yellow = slower split · Telemetry is sourced from your local F1 24 UDP stream.</p>
     </div>
   </main>;
