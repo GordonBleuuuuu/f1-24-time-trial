@@ -29,3 +29,9 @@ A Next.js live leaderboard fed by F1 24 PC UDP telemetry. The interface is origi
 4. Open the deployment, register the driver, then start the time-trial session.
 
 The UDP listener parses packet IDs 2 (lap data), 4 (participants), and 11 (session history). Vercel WebSockets are public beta; for durable multi-viewer fan-out or reconnect replay, use Redis pub/sub plus persisted latest-lap state.
+
+## Global leaderboard and accounts
+
+1. Create a Supabase project, then run `supabase/schema.sql` once in its SQL Editor.
+2. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` locally and in Vercel Environment Variables.
+3. Redeploy. Drivers can create email accounts from the dashboard; each completed valid lap is saved to their account and appears in the live per-track global top 10.
