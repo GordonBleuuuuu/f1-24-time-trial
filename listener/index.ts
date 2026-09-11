@@ -19,6 +19,26 @@ function connect() { const separator = WS_URL!.includes("?") ? "&" : "?"; ws = n
 function broadcast(message: unknown) { if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify(message)); }
 connect();
 const udp = dgram.createSocket("udp4");
-udp.on("message", (packet) => { const header = readHeader(packet); if (!header || header.packetFormat !== 2024) return; if (header.packetId === 4) parseParticipants(packet); if (header.packetId === 11) parseSessionHistory(packet); if (header.packetId === 2) parseLapData(packet, header); });
+const announcedPackets = new Set<string>();
+let lastLapForwardLog = 0;
+udp.on("message", (packet) => {
+  const header = readHeader(packet);
+  if (!header) return;
+  const packetKey = `${header.packetFormat}:${header.packetId}`;
+  if (!announcedPackets.has(packetKey)) {
+    announcedPackets.add(packetKey);
+    console.log(`F1 UDP received: format=${header.packetFormat}, packetId=${header.packetId}`);
+  }
+  if (header.packetFormat !== 2024) return;
+  if (header.packetId === 4) parseParticipants(packet);
+  if (header.packetId === 11) parseSessionHistory(packet);
+  if (header.packetId === 2) {
+    if (Date.now() - lastLapForwardLog > 2_000) {
+      lastLapForwardLog = Date.now();
+      console.log("Forwarding F1 lap telemetry to Vercel…");
+    }
+    parseLapData(packet, header);
+  }
+});
 udp.on("error", (error) => console.error("UDP listener error:", error.message));
 udp.bind(UDP_PORT, "0.0.0.0", () => console.log(`F1 24 UDP listener bound to 0.0.0.0:${UDP_PORT}`));
