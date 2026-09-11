@@ -11,7 +11,8 @@ export function TrackMap({ track, lapDistance }: { track: TrackInfo; lapDistance
   const pathRef = useRef<SVGPathElement>(null);
   const [marker, setMarker] = useState<Marker | null>(null);
   const hasAccurateMap = supportedTrackIds.has(track.id);
-  const progress = track.trackLength > 0 && lapDistance >= 0 ? Math.min(1, lapDistance / track.trackLength) : 0;
+  // The source circuit vectors are traced in the opposite direction to F1 UDP lap distance.
+  const progress = track.trackLength > 0 && lapDistance >= 0 ? 1 - Math.min(1, lapDistance / track.trackLength) : 1;
 
   useEffect(() => {
     setPathData("");
