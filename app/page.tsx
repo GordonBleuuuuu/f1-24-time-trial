@@ -4,10 +4,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { DriverInput } from "@/components/DriverInput";
 import { AccountPanel } from "@/components/AccountPanel";
 import { GlobalLeaderboard } from "@/components/GlobalLeaderboard";
+import { PersonalDashboard } from "@/components/PersonalDashboard";
+import { TelemetryLink } from "@/components/TelemetryLink";
 import { Leaderboard } from "@/components/Leaderboard";
 import { TrackMap } from "@/components/TrackMap";
 import type { DriverDetails, DriverLap, TelemetryEnvelope, TrackInfo } from "@/lib/telemetry";
-import { supabase } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
 function websocketUrl() {
@@ -24,7 +25,6 @@ export default function Dashboard() {
   const [laps, setLaps] = useState<Record<number, DriverLap>>({});
   const [track, setTrack] = useState<TrackInfo>({ id: -1, name: "TIME TRIAL", country: "Awaiting session", trackLength: 0 });
   const [account, setAccount] = useState<User | null>(null);
-  const savedLaps = useRef(new Set<string>());
 
   useEffect(() => {
     let disposed = false;
@@ -49,13 +49,6 @@ export default function Dashboard() {
 
   const liveLaps = useMemo(() => Object.values(laps), [laps]);
   const driver = liveLaps[0];
-  useEffect(() => {
-    if (!supabase || !account || !driver || !details || !track.trackLength || !driver.lastLapTime || !driver.lapValid) return;
-    const signature = `${account.id}:${track.id}:${driver.currentLap}:${driver.lastLapTime}`;
-    if (savedLaps.current.has(signature)) return;
-    savedLaps.current.add(signature);
-    supabase.from("laps").insert({ user_id: account.id, driver_name: details.name, gamertag: details.gamertag, car: driver.car, track_id: track.id, track_name: track.name, lap_time_ms: driver.lastLapTime, sector1_ms: driver.personalBestSector1 || null, sector2_ms: driver.personalBestSector2 || null, sector3_ms: driver.personalBestSector3 || null, valid: true }).then(({ error }) => { if (error) { savedLaps.current.delete(signature); console.error("Lap history save failed", error.message); } });
-  }, [account, details, driver, track]);
   const saveIdentity = (identity: DriverDetails) => { setDetails(identity); socket.current?.send(JSON.stringify({ type: "identity", payload: identity })); };
 
   return <main className="min-h-screen bg-ink pb-10">
@@ -64,6 +57,8 @@ export default function Dashboard() {
     <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6"><div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[.2em] text-zinc-500">Session telemetry</p><h2 className="text-3xl font-bold uppercase">{driver?.team || "Waiting for session"}</h2></div>{details && <div className="border-l-2 border-f1 pl-3 text-right"><p className="text-sm font-bold uppercase">{details.name} <span className="text-zinc-400">/ {details.gamertag}</span></p><p className="text-xs text-zinc-500">{details.input}</p></div>}</div>
       <div className="grid gap-5 lg:grid-cols-[1.45fr_.9fr]"><Leaderboard laps={liveLaps} identity={details || undefined} /><TrackMap track={track} lapDistance={driver?.lapDistance ?? 0} /></div>
       <GlobalLeaderboard track={track} />
+      <TelemetryLink user={account} details={details} />
+      <PersonalDashboard user={account} track={track} />
       <p className="mt-5 text-center text-xs text-zinc-600">Purple = session best · Green = personal best · Yellow = slower split · Telemetry is sourced from your local F1 24 UDP stream.</p>
     </div>
   </main>;
