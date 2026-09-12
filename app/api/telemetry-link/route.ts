@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
   const gamertag = String(body.gamertag || auth.user.user_metadata.gamertag || "Driver").slice(0, 40);
   const inputSetup = String(body.inputSetup || "Unspecified").slice(0, 80);
   const assistPreset = String(body.assistPreset || "Unspecified").slice(0, 80);
-  const platform = "PC";
+  const platform = String(body.platform || "PC").slice(0, 40);
   const sessionToken = crypto.randomUUID().replaceAll("-", "") + crypto.randomUUID().replaceAll("-", "");
   const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString();
 

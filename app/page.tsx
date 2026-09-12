@@ -50,6 +50,8 @@ export default function Dashboard() {
     name: String(account.user_metadata.display_name || account.email?.split("@")[0] || "Driver"),
     gamertag: String(account.user_metadata.gamertag || account.email?.split("@")[0] || "Driver"),
     input: String(account.user_metadata.input_setup || "Unspecified"),
+    assistPreset: String(account.user_metadata.assist_preset || "Unspecified"),
+    platform: String(account.user_metadata.platform || "PC"),
   } : null;
 
   return <main className="min-h-screen bg-ink pb-10">

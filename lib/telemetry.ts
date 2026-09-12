@@ -1,4 +1,4 @@
-export type DriverDetails = { name: string; gamertag: string; input: string };
+export type DriverDetails = { name: string; gamertag: string; input: string; assistPreset: string; platform: string };
 export type TrackInfo = { id: number; name: string; country: string; trackLength: number; weather?: string; gameSessionUid?: string };
 export type DriverLap = { carIndex: number; position: number; currentLap: number; lastCompletedLap: number; currentLapTime: number; lastLapTime: number; sector1: number; sector2: number; sector3: number; personalBestSector1: number; personalBestSector2: number; personalBestSector3: number; deltaToLeader: number; lapDistance: number; teamId: number; team: string; car: string; driverName: string; lapValid: boolean; lastLapValid: boolean; timestamp: number };
 export type TelemetryEnvelope = { type: "lap"; payload: DriverLap } | { type: "session"; payload: TrackInfo } | { type: "identity"; payload: DriverDetails } | { type: "hello"; payload: { connectedAt: number } };

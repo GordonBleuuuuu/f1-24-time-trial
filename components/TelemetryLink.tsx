@@ -19,7 +19,7 @@ export function TelemetryLink({ user, details }: { user: User | null; details: D
     const response = await fetch("/api/telemetry-link", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-      body: JSON.stringify({ driverName: driver.name, gamertag: driver.gamertag, inputSetup: driver.input }),
+      body: JSON.stringify({ driverName: driver.name, gamertag: driver.gamertag, inputSetup: driver.input, assistPreset: driver.assistPreset, platform: driver.platform }),
     });
     const payload = await response.json();
     if (!response.ok) return setMessage(payload.error || "Could not link the relay.");
